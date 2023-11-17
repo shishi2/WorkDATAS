@@ -1,0 +1,11 @@
+#忽略手册
+*.docx
+*.doc
+*.exe
+TT*.c
+.vscode
+*.md
+*.pdf
+*.png
+*.rar
+*.ppt*
