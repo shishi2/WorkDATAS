@@ -12,7 +12,6 @@ typedef struct ElemType
     int grade;
 }ElemType;
 
-
 typedef struct SqList
 {
     ElemType *elem;
