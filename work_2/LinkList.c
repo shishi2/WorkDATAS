@@ -96,6 +96,7 @@ int main(){
     ElemType *E4 = ElemSet("adsgyhj","172",42);
     TailInertL(N,E1);
     TailInertL(N,E2);
+    free(E2);
     TailInertL(N,E3);
     TailInertL(N,E4);
     printList(N);
