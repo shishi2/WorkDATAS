@@ -49,7 +49,7 @@ void TailInertL(Node *L, ElemType *elem){//尾插法添加新节点
     {
         Temp = Temp->next;
     }
-    Find->elem = CopyElem(elem);
+    Find->elem = CopyElem(elem);//不使用的话，原有数据被删有影响。
     Find->next = NULL;
     Temp->next = Find;
     Temp->num++;

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #define OVERFLOW 0
-#define List_INIT_SIZE 100  //基础容量
+#define List_INIT_SIZE 30  //基础容量
 #define LISTINCREMENT 10    //增量
 
 typedef struct ElemType//存储的数据
@@ -47,36 +47,48 @@ int InsertSq(SqList* S,int i , ElemType* ele){//在i处插入数据
 
     //把i及其后数据后移一位
     for (int j = S->Listsize - 2; j >= i - 1; j--) {
-        strcpy(S->elem[j + 1].name, S->elem[j].name);
-        strcpy(S->elem[j + 1].num, S->elem[j].num);
-        S->elem[j + 1].grade = S->elem[j].grade;
+        S->elem[j + 1] = S->elem[j];
     }
     //插入的数据
-    strcpy(S->elem[i-1].name,ele->name);
-    strcpy(S->elem[i-1].num,ele->num);
-    S->elem[i-1].grade = ele->grade;
-
+    S->elem[i-1] = *ele;
     S->length++;
+    return 1;
+}
+
+int DeletL(SqList* S,int i){//删除第i个数据
+    if(i < 1 || i > S->Listsize) return 0;
+    for (int j = i - 1; j < S->Listsize; j++) {
+        S->elem[j] = S->elem[j + 1];
+    }
+    S->length--;
     return 1;
 }
 
 void printSq(SqList* S){
     for(int i =0; i < S->Listsize; i++){
-        printf("%d",S->elem[i].grade);
+        printf("%s %s %d\n",S->elem[i].name,S->elem[i].num,S->elem[i].grade);
     }
 }
 
 int main(){
     SqList* S =initSq();
-    ElemType *stu1, *stu2, *stu3;
+    ElemType *stu1, *stu2, *stu3, *stu4;
     stu1 = ElemSet("jack","78451",99);
     stu2 = ElemSet("mark","85641",22);
-    stu3 = ElemSet("name","961",22);
+    stu3 = ElemSet("name","961",33);
+    stu4 = ElemSet("th","961",44);
 
-    InsertSq(S,0,stu1);
-    InsertSq(S,1,stu2);
-    InsertSq(S,2,stu3);
-
+    InsertSq(S,1,stu1);
+    InsertSq(S,2,stu2);
+    InsertSq(S,3,stu3);
+    InsertSq(S,5,stu4);
+    InsertSq(S,30,stu4);
+    DeletL(S,30);
     printSq(S);
+    printf("%d",S->length);
+    // printf("######分界线####");
+    // free(stu4);//为什么没影响？
+    // printSq(S);
+
     return 0;
 }
