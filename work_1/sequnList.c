@@ -64,6 +64,11 @@ int DeletL(SqList* S,int i){//删除第i个数据
     return 1;
 }
 
+int MergeL(SqList* S1,SqList* S2,SqList* C){//合并S1和S2到C
+    
+
+}
+
 void printSq(SqList* S){
     for(int i =0; i < S->Listsize; i++){
         printf("%s %s %d\n",S->elem[i].name,S->elem[i].num,S->elem[i].grade);
