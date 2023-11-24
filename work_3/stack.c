@@ -25,7 +25,7 @@ void InsertNode(Node* N, int data){//头插法
 }
 
 int isEmpty(Node* N){//空0
-    if(N->next == NULL){
+    if(N->next == NULL || N->num == 0){
         return 0;
     }else{
         return 1;
