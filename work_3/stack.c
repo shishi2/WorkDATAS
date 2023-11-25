@@ -75,7 +75,7 @@ int main(){
         pop(N);
     }
     printf("\n输出栈长度: %d\n",LengthStack(N));
-
+//长度输出可能有bug
     
     return 0;
 }
