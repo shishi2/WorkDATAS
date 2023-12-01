@@ -4,3 +4,4 @@
 *.exe
 TT*.c
 .vscode
+*.md
