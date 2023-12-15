@@ -91,8 +91,8 @@ int main(){
     };
     creatAdjaL(A,"123456",(int*)arcs);
     printAdjaL(A);
-    printf("\n");
-    shuchu(A);
+    // printf("\n");
+    // shuchu(A);
 
     return 0;
 }
