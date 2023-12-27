@@ -166,9 +166,9 @@ void InorderRecurion(Bitree* B){
     if(B){
         InorderRecurion(B->left);
         if(B->num){
-            printf("%d",B->num);
+            printf("%3d",B->num);
         }else{
-            printf("%c",B->sign);
+            printf("%2c",B->sign);
         }
         InorderRecurion(B->right);
     }
@@ -180,9 +180,9 @@ void InorderRecurion(Bitree* B){
 void PreRecurion(Bitree* B){
     if(B){
         if(B->num){
-            printf("%d",B->num);
+            printf("%3d",B->num);
         }else{
-            printf("%c",B->sign);
+            printf("%2c",B->sign);
         }
         PreRecurion(B->left);
         PreRecurion(B->right);
@@ -191,17 +191,70 @@ void PreRecurion(Bitree* B){
 
 /**
  * 后序遍历
+ * 输出逆波兰式
 */
 void PostRecurion(Bitree* B){
     if(B){
         PostRecurion(B->left);
         PostRecurion(B->right);
         if(B->num){
+            printf("%3d",B->num);
+        }else{
+            printf("%2c",B->sign);
+        }
+    }
+}
+
+
+/**
+ * 输出中缀表达式
+ * @param B 表达式二叉树
+*/
+void InfixRecurion(Bitree* B){
+    if(B){
+        if(B->left && B->right){
+            printf("(");
+        }
+        InfixRecurion(B->left);
+        if(B->num){
             printf("%d",B->num);
         }else{
             printf("%c",B->sign);
         }
+        
+        InfixRecurion(B->right);
+        if(B->left && B->right){
+            printf(")");
+        }
     }
+}
+
+int calculate(Bitree* B){
+    if(B->left == NULL && B->right == NULL){
+        return B->num;
+    }
+    int left = calculate(B->left);
+    int right = calculate(B->right);
+    switch (B->sign)
+    {
+    case '*':
+        return left * right;
+    case '/':
+        if(right == 0){
+            printf("出现除数为0\n");
+            exit(1);
+        }else{
+            return left / right;
+        }
+    case '+':
+        return left + right;
+    case '-':
+        return left - right;
+    default:
+        printf("无效运算符\n");
+        exit(1);
+    }
+    return -1;
 }
 
 int main(){
@@ -210,6 +263,11 @@ int main(){
     InorderRecurion(B);
     printf("\n");
     PostRecurion(B);
-
+    printf("\n");
+    InfixRecurion(B);
+    printf("\n");
+    printf("%d",calculate(B));
+    printf("\n");
+    
     return 0;
 }
