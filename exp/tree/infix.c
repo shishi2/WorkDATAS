@@ -212,7 +212,7 @@ void PostRecurion(Bitree* B){
 */
 void InfixRecurion(Bitree* B){
     if(B){
-        if(B->left && B->right){
+        if(B->left && B->right){/*本质为检测运算符*/
             printf("(");
         }
         InfixRecurion(B->left);
