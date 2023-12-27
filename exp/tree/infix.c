@@ -9,8 +9,8 @@ typedef struct Bitree
     struct Bitree* right;
 }Bitree;
 
-/*
-创建一个二叉.树+树节点
+/**
+ *创建一个二叉.(树,树节点)
 */
 Bitree* initTree(){
     Bitree* B = (Bitree*)malloc(sizeof(Bitree));
@@ -21,14 +21,11 @@ Bitree* initTree(){
     return B;
 }
 
-
-
-
-/*
+/**
 *入栈
-头插法
-@param B 栈
-@param data 入栈的节点
+ *头插法
+ *@param B 栈
+ *@param data 入栈的节点
 */
 void InertStack(Bitree* B,Bitree* data){
     Bitree* T = B->left;
@@ -36,7 +33,7 @@ void InertStack(Bitree* B,Bitree* data){
     data->left = T;
 }
 
-/*
+/**
  * 出栈
 */
 Bitree* popStack(Bitree* B){
@@ -50,10 +47,46 @@ Bitree* popStack(Bitree* B){
 }
 
 /**
+ * 取数字栈顶和符号栈顶合成
+ * @param S_num 数字栈顶
+ * @param S_exp 符号栈顶
+ * @return t 经合成后的节点, 其right为数据节点
+*/
+Bitree* Synthtree(Bitree* S_num,Bitree* S_exp){
+    Bitree* num1 = popStack(S_num);
+    Bitree* num2 = popStack(S_num);
+    Bitree* signa2 = popStack(S_exp);
+
+    if(num1->sign == '!'){
+        Bitree* temp = num1;
+        num1 = num1->right;
+        free(temp);
+    }else{
+        num1->left = NULL;
+        num1->right = NULL;
+    }
+
+    if(num2->sign == '!'){
+        Bitree* temp = num2;
+        num2 = num2->right;
+        free(temp);
+    }else{
+        num2->left = NULL;
+        num2->right = NULL;
+    }
+    signa2->right = num1;
+    signa2->left = num2;
+    Bitree* t = initTree();/*signa2的左右子树已满*/
+    t->right = signa2;
+    t->sign = '!';
+    return t;
+}
+
+/**
  * 构建表达式树
 */
 Bitree* experBiTree(){
-    printf("输入一个中缀表达式(以#结尾): \n");
+    printf("输入一个中缀表达式(其中+-*/四个符号分别对应加法,减法,乘法,除法,最后以#结尾): \n");
     int flag = 0;/*记录数字的次数*/
     int num = 0;/*辅助记录数字*/
     Bitree* S_num = initTree();/*存储数字的栈*/
@@ -81,13 +114,9 @@ Bitree* experBiTree(){
             int kuohao = 0;/*判断是不是左括号*/
             if(sign == ')'){/*是右括号则合成一个子树,放到数字处*/
                 do{
-                    Bitree* num1 = popStack(S_num);
-                    Bitree* num2 = popStack(S_num);
-                    Bitree* signa2 = popStack(S_exp);
-                    signa2->right = num1;
-                    signa2->left = num2;
-                    InertStack(S_num,signa2);
-                    if(S_exp->left->sign == '('){
+                    Bitree* t = Synthtree(S_num,S_exp);
+                    InertStack(S_num,t);
+                    if(S_exp->left->sign == '('){/*判断当前栈顶是否为'('*/
                         popStack(S_exp);
                         kuohao = 0;
                     }else{
@@ -96,6 +125,17 @@ Bitree* experBiTree(){
                 }while(kuohao);
                 
             }else{/*不是右括号则入栈*/
+                while(sign != '(' && S_exp->left){
+                    while (S_exp->left->sign == '*' || S_exp->left->sign == '/'){
+                        /*检查当前栈顶符号是否为/*若是则需要弹出*/
+                        /*且不应为(,保证/*左右括号正常发挥功能*/
+                        Bitree* t = Synthtree(S_num,S_exp);
+                        InertStack(S_num,t);
+                    }
+                    if(S_exp->left->sign != '*' || S_exp->left->sign != '/'){
+                        break;
+                    }
+                }
                 Bitree* signa = initTree();
                 signa->sign = sign;
                 InertStack(S_exp,signa);
@@ -104,19 +144,24 @@ Bitree* experBiTree(){
     }
 
     while (1){
-        Bitree* signa2 = popStack(S_exp);
-        if(signa2->left){/*符号栈不为空*/
-            Bitree* num1 = popStack(S_num);
-            Bitree* num2 = popStack(S_num);
-            signa2->left = num2;
-            signa2->right =  num1;
-            InertStack(S_num,signa2);/*组成子树，放回数字栈*/
+        Bitree* signa2 = S_exp->left;
+        if(signa2){/*符号栈不为空*/
+            Bitree* t = Synthtree(S_num,S_exp);
+            InertStack(S_num,t);
         }else{/*符号栈为空，则结束*/
-            return popStack(S_num);
+            S_num = popStack(S_num);
+            if(S_num->sign == '!'){
+                S_num = S_num->right;
+            }
+            free(S_exp);
+            return S_num;
         }  
     }
 }
 
+/**
+ * 中序遍历
+*/
 void InorderRecurion(Bitree* B){
     if(B){
         InorderRecurion(B->left);
@@ -129,10 +174,42 @@ void InorderRecurion(Bitree* B){
     }
 }
 
+/**
+ * 先序遍历
+*/
+void PreRecurion(Bitree* B){
+    if(B){
+        if(B->num){
+            printf("%d",B->num);
+        }else{
+            printf("%c",B->sign);
+        }
+        PreRecurion(B->left);
+        PreRecurion(B->right);
+    }
+}
+
+/**
+ * 后序遍历
+*/
+void PostRecurion(Bitree* B){
+    if(B){
+        PostRecurion(B->left);
+        PostRecurion(B->right);
+        if(B->num){
+            printf("%d",B->num);
+        }else{
+            printf("%c",B->sign);
+        }
+    }
+}
+
 int main(){
     Bitree* B = experBiTree();
     printf("\n");
     InorderRecurion(B);
+    printf("\n");
+    PostRecurion(B);
 
     return 0;
 }
