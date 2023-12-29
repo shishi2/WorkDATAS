@@ -1,14 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define MAX -1
+#include <stdbool.h>
+#define MAX 54713
 
 /**
  * 邻接表节点
 */
 typedef struct VexNode{
     int index;/*邻接表下标*/
-    int time;
+    int time;/*两站之间的时间*/
     struct VexNode* next;
 }VexNode;
 
@@ -52,7 +53,7 @@ void creat3AdjL(AdjaL*** A,int* time){
     for(int i = 0; i < line; i++){
         for (int j = 0; j < VexNum; j++){
             for(int k = VexNum - 1; k >= 0; k--){
-                int time_t = *(time + i * line * VexNum +j * VexNum + k);
+                int time_t = *(time + i * VexNum * VexNum +j * VexNum + k);
                 if(time_t == MAX || time_t == 0){/*不记录不可达和本身*/
                     continue;
                 }
@@ -84,7 +85,7 @@ AdjaL** init2AdjaL(int VexNum,char city[][5]){
 }
 
 /**
- * 添加2dim邻接表节点
+ * 添加大量2dim邻接表节点
  * 只保留两相邻节点之间更少时间的数据
  * @param line 线路图数目
 */
@@ -92,8 +93,8 @@ void creat2AdjaL(AdjaL** B,int* time,int line){
     int VexNum = B[0]->VexNum;
     for(int i = 0;i < line;i++){/*对各个线路进行遍历*/
         for(int j = 0; j < VexNum; j++){/*单个线路添加*/
-            for(int k = VexNum; k >= 0; k--){
-                int time_t = *(time + i*line*VexNum + j*VexNum + k);
+            for(int k = VexNum-1; k >= 0; k--){
+                int time_t = *(time + i*VexNum*VexNum + j*VexNum + k);
                 if(time_t == MAX || time_t == 0){/*不记录不可达和本身*/
                     continue;
                 }
@@ -111,19 +112,159 @@ void creat2AdjaL(AdjaL** B,int* time,int line){
                 }
                 if(flag == 0){
                     VexNode* node = (VexNode*)malloc(sizeof(VexNode));
+                    AdjaL* debug = B[j];
                     VexNode* temp = B[j]->vex;
                     node->time = time_t;
                     node->index = k;
                     node->next = temp;
                     B[j]->vex = node;
+                    printf("1");
                 }
             }
         }
     }
 }
 
+/**
+ * 添加站点联通关系
+ * 若已联通则更新时间
+*/
+void addAdjaL(AdjaL** B,char start[5],char end[5],int time){
+    int VexNum = B[0]->VexNum;
+    int start_index = -1;
+    int end_index = -1;
+    for (int i = 0; i < VexNum; i++){/*找到start和end对于的下标*/
+        if(strcmp(B[i]->city,start) == 0){
+            start_index = i;
+            continue;
+        }
+        if(strcmp(B[i]->city,end) == 0){
+            end_index = i;
+        }
+    }
+    VexNode* t = B[start_index]->vex;
+    int flag = true;/*表中未有*/
+    while (t){
+        if(t->index == end_index){
+            flag = false;
+            t->time = time;
+            break;
+        }
+        t = t->next;
+    }
+    if(flag){
+        VexNode* node1 = (VexNode*)malloc(sizeof(VexNode));
+        node1->index = end_index;
+        node1->time = time;
+        t = B[start_index]->vex;
+        B[start_index]->vex = node1;
+        node1->next = t;
+
+        VexNode* node2 = (VexNode*)malloc(sizeof(VexNode));
+        node2->index = start_index;
+        node2->time = time;
+        t = B[end_index]->vex;
+        B[end_index]->vex = node2;
+    }else{
+        t = B[end_index]->vex;
+        while(t){
+            if(flag == 0){
+                t->time = time;
+                break;
+            }
+        t = t->next;
+        }
+    }
+}
 
 
+
+bool BFS(AdjaL** B, int start_index, int end_index, int* path, int* path_length) {
+    int VexNum = B[0]->VexNum;
+    int queue[VexNum]; // 用于存放待处理的节点
+    bool visited[VexNum]; // 记录节点是否被访问过
+    int prev[VexNum]; // 记录路径中各节点的前驱节点
+    for(int i = 0;i < VexNum; i++){
+        prev[i] = -1;
+        queue[i] = -1;
+        visited[i] = false;
+    }
+
+    int rear = 0;/*队尾*/
+    int front = 0;
+
+    queue[rear] = start_index; rear++;/*将起始节点入队*/
+    visited[start_index] = true;
+    
+    while(front < rear){
+        if( queue[front] >= 0 &&B[queue[front]]->vex){
+            VexNode* Temp = B[queue[front]]->vex;
+            while (Temp){
+                if(visited[Temp->index] == true){
+                    Temp = Temp->next;
+                    continue;
+                }else{
+                    queue[rear] = Temp->index;rear++;
+                    visited[Temp->index] = true;
+                    prev[Temp->index] = queue[front];
+                    Temp = Temp->next;
+                }
+            }            
+        }
+        front++; 
+    }
+    
+    *path_length = 0;
+
+    path[*path_length] = end_index;
+    (*path_length)++;
+    while (prev[path[*path_length-1]] != -1){
+        path[*path_length] = prev[path[*path_length - 1]];
+        (*path_length)++;
+    }
+    path[*path_length] = start_index;
+
+    return true;
+}
+
+/**
+ * 以途经的站数作为计算依据
+ * 即每个可达站点之间的权值认为是1
+ * 输出途经的站点
+*/
+void findShortestPath(AdjaL** B, char start[5], char end[5]){
+    int VexNum = B[0]->VexNum;
+    int start_index = -1;
+    int end_index = -1;
+    for (int i = 0; i < VexNum; i++){/*找到start和end对于的下标*/
+        if(strcmp(B[i]->city,start) == 0){
+            start_index = i;
+            continue;
+        }
+        if(strcmp(B[i]->city,end) == 0){
+            end_index = i;
+        }
+    }
+    if (start_index == -1 || end_index == -1) {
+        printf("起点或终点不在图中\n");
+        return;
+    }
+    
+    int path[VexNum], path_length = 0;
+    bool found = BFS(B, start_index, end_index, path, &path_length);
+
+    if (found) {
+        printf("最短路径为: ");
+        for (int i = path_length - 1; i >= 0; i--) {
+            printf("%s ", B[path[i]]->city);
+        }
+        printf("\n其长度为%d\n",path_length );
+    } else {
+        printf("没有找到路径\n");
+    }
+
+    
+}
 
 /**
  * 输出3dim的所有站点
@@ -151,8 +292,8 @@ int main(){
     char city[30][5]={"fir","sec","thi"};
     int time[2][3][3] = 
     {
-        {{0,1,MAX},{1,0,2},{MAX,2,0}},
-        {{0,4,MAX},{4,0,MAX},{MAX,MAX,0}}
+        {{0,MAX,3},{MAX,0,2},{3,2,0}},
+        {{0,MAX,MAX},{MAX,0,MAX},{MAX,MAX,0}}
     };
 
     AdjaL*** A = init3Adj(3,3,city);
@@ -162,7 +303,11 @@ int main(){
     AdjaL** B = init2AdjaL(3,city);
     creat2AdjaL(B,(int*)time,2);
     print2AdjaL(B);
+    AdjaL* t1 = B[0];
+    AdjaL* t2 = B[1];
+    AdjaL* t3 = B[2];
 
+    findShortestPath(B,"fir","sec");
 
     return 0;
 }
