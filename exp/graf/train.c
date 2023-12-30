@@ -44,7 +44,7 @@ AdjaL*** init3Adj(int line,int vexnum,char city[][5]){
 }
 
 /**
- * 添加3dim邻接表节点
+ * 创建3dim大量邻接表节点
  * @param time 权值信息
 */
 void creat3AdjL(AdjaL*** A,int* time){
@@ -59,7 +59,7 @@ void creat3AdjL(AdjaL*** A,int* time){
                 }
                 VexNode* node = (VexNode*)malloc(sizeof(VexNode));
                 node->index = k;
-                node->time = *(time + i * line * VexNum +j * VexNum + k);
+                node->time = *(time + i * VexNum * VexNum +j * VexNum + k);
                 VexNode* t = A[i][j]->vex;
                 A[i][j]->vex = node;
                 node->next = t;
@@ -69,7 +69,7 @@ void creat3AdjL(AdjaL*** A,int* time){
 }
 
 /**
- * 创建二维邻接表，不含线路信息
+ * 创建二维邻接表头，不含线路信息
 */
 AdjaL** init2AdjaL(int VexNum,char city[][5]){
     AdjaL** B = (AdjaL**)malloc(sizeof(AdjaL*));
@@ -85,7 +85,7 @@ AdjaL** init2AdjaL(int VexNum,char city[][5]){
 }
 
 /**
- * 添加大量2dim邻接表节点
+ * 创建大量2dim邻接表节点
  * 只保留两相邻节点之间更少时间的数据
  * @param line 线路图数目
 */
@@ -142,7 +142,7 @@ void addAdjaL(AdjaL** B,char start[5],char end[5],int time){
     }
     VexNode* t = B[start_index]->vex;
     int flag = true;/*表中未有*/
-    while (t){
+    while (t){/*在起始节点找，有则该*/
         if(t->index == end_index){
             flag = false;
             t->time = time;
@@ -150,7 +150,7 @@ void addAdjaL(AdjaL** B,char start[5],char end[5],int time){
         }
         t = t->next;
     }
-    if(flag){
+    if(flag){/*表中未有*/
         VexNode* node1 = (VexNode*)malloc(sizeof(VexNode));
         node1->index = end_index;
         node1->time = time;
@@ -163,7 +163,7 @@ void addAdjaL(AdjaL** B,char start[5],char end[5],int time){
         node2->time = time;
         t = B[end_index]->vex;
         B[end_index]->vex = node2;
-    }else{
+    }else{/*有*/
         t = B[end_index]->vex;
         while(t){
             if(flag == 0){
@@ -177,6 +177,7 @@ void addAdjaL(AdjaL** B,char start[5],char end[5],int time){
 
 /**
  * 对2dim邻接表进行BFS
+ * @param flag 0 不计算path 只计算path长度
 */
 bool BFS2(AdjaL** B, int start_index, int end_index, int* path, int* path_length) {
     int VexNum = B[0]->VexNum;
@@ -196,7 +197,7 @@ bool BFS2(AdjaL** B, int start_index, int end_index, int* path, int* path_length
     visited[start_index] = true;
     
     while(front < rear){/*正式BFS*/
-        if( queue[front] >= 0 &&B[queue[front]]->vex){
+        if( queue[front] >= 0 && B[queue[front]]->vex){
             VexNode* Temp = B[queue[front]]->vex;
             while (Temp){
                 if(visited[Temp->index] == true){
@@ -212,7 +213,10 @@ bool BFS2(AdjaL** B, int start_index, int end_index, int* path, int* path_length
         }
         front++; 
     }
-    
+
+    // if(!visited[end_index]){
+    //     return false;
+    // }
     /*把遍历结果放到path中*/
     *path_length = 0;
     path[*path_length] = end_index;
@@ -304,6 +308,61 @@ void lessTime(AdjaL** B,char start[5],char end[5]){
     }
 }
 
+bool BFS3(AdjaL*** A, int start, int end,int* flag) {
+    int line = A[0][0]->line;
+    int VexNum = A[0][0]->VexNum;
+    int path[line][VexNum];
+    int path_length[line];
+
+    for(int i = 0; i < line; i++){
+        BFS2(A[i],start,end,(int*)path[i],&(path_length[i]));
+            for(int j = 0; j < path_length[i]; j++){
+                if(path[i][j] == end){
+                    (*flag) ++;
+                    return true;
+                }
+            }
+    }
+    for(int i = 0; i < line; i++){
+        if(path_length[i] > 0){
+            for(int j = path_length[i]-1; j>=0;j--){
+                bool t = BFS3(A,path[i][j],end,flag);
+                if(t){
+                    return true;
+                }
+            }
+        }
+        
+    }
+    return false;
+}
+
+/**
+ * 以换线次数为标准
+ * 查询换线次数
+*/
+void lessChangeline(AdjaL*** A,char start[5],char end[5]){
+    int line = A[0][0]->line;
+    int VexNum = A[0][0]->VexNum;
+
+    /*找下标*/
+    int start_index = -1;
+    int end_index = -1;
+    for(int i = 0; i < VexNum; i++){
+        if(strcmp(A[0][i]->city, start)){
+            start_index = i;
+            continue;
+        }
+        if (strcmp(A[0][i]->city,end)){
+            end_index = i;
+            continue;
+        } 
+    }
+    int changeline = 0;
+    BFS3(A,start_index,end_index,&changeline);
+    printf("最少换线为%d\n",changeline);
+}
+
 /**
  * 输出3dim的所有站点
 */
@@ -328,26 +387,24 @@ void print2AdjaL(AdjaL** B){
 
 
 int main(){
-    char city[30][5]={"fir","sec","thi"};
-    int time[2][3][3] = 
+    char city[30][5]={"fir","sec","thi","four"};
+    int time[2][4][4] = 
     {
-        {{0,MAX,3},{MAX,0,2},{3,2,0}},
-        {{0,MAX,MAX},{MAX,0,MAX},{MAX,MAX,0}}
+        {{0,MAX,3,MAX},{MAX,0,2,MAX},{3,2,0,MAX},{MAX,MAX,MAX,0}},
+        {{0,MAX,MAX,MAX},{MAX,0,3,MAX},{MAX,3,0,2},{MAX,MAX,2,0}}
     };
 
-    AdjaL*** A = init3Adj(3,3,city);
+    AdjaL*** A = init3Adj(2,4,city);
     creat3AdjL(A,(int*)time);
     print3AdjaL(A);
 
-    AdjaL** B = init2AdjaL(3,city);
+    AdjaL** B = init2AdjaL(4,city);
     creat2AdjaL(B,(int*)time,2);
     print2AdjaL(B);
-    AdjaL* t1 = B[0];
-    AdjaL* t2 = B[1];
-    AdjaL* t3 = B[2];
 
     findShortestPath(B,"fir","sec");
     lessTime(B,"fir","sec");
+    lessChangeline(A,"fir","four");
 
     return 0;
 }
