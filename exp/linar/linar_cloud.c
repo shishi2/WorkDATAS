@@ -36,16 +36,19 @@ VMNum* initVM(int vm1,int vm2,int vm3){
     }else{
         V->vm1 = rand()%71 + 30;
     }
+    printf("vm1:%d\n",V->vm1);
     if(vm2 >= 0){
         V->vm2 = vm2;
     }else{
         V->vm2 = rand()%71 + 30;
     }
+    printf("vm2:%d\n",V->vm2);
     if(vm3 >= 0){
         V->vm3 = vm3;
     }else{
         V->vm3 = rand()%71 + 30;
     }
+    printf("vm3:%d\n",V->vm3);
     return V;
 }
 
@@ -62,10 +65,26 @@ int useMemoray(int vm1,int vm2,int vm3){
     return (vm1*4 + vm2*32 + vm3*64);
 }
 
-/*
-*创建服务器
+/**
+ * 创建服务器
 */
-Server* initServer(VMNum* V,int* num){
+Server* initServer(VMNum* V){
+    Server* S = (Server*)malloc(sizeof(Server)*(30));
+    memset(S,0,sizeof(Server)*30);
+    for(int i = 0; i < 30; i++){
+        S[i].CPU = 0;
+        S[i].MEMORY = 0;
+        S[i].vm1 = 0;
+        S[i].vm2 = 0;
+        S[i].vm3 = 0;
+    }
+    return S;
+}
+
+/*
+*添加虚拟机
+*/
+void addVm(Server* S,VMNum* V,int* num){
     *num = 0;
     int S_count = 0;
     int vm_count[3] = {V->vm1,V->vm2,V->vm3};//各种虚拟机的数目
@@ -120,8 +139,7 @@ Server* initServer(VMNum* V,int* num){
             }
         }
     }
-    Server* S = (Server*)malloc(sizeof(Server)*(30));
-    memset(S,0,sizeof(Server)*30);
+    //将服务器信息存入S中
     for (int i = 0; i <= S_count + 1; i++){
         S[i].vm1 = vm1_count[i];
         S[i].vm2 = vm2_count[i];
@@ -133,7 +151,6 @@ Server* initServer(VMNum* V,int* num){
             break;
         }
     }
-    return S;
 }
 
 
@@ -150,11 +167,38 @@ void printServer(Server* S,int num){
 }
 
 int main(){
-
-    VMNum* V = initVM(-1,-1,-1);
     int* num = (int*)malloc(sizeof(int));
-    Server* S = initServer(V,num);
-    printServer(S,*num);
+
+    while (1){
+        int flag = 0;
+        printf("添加虚拟机请输入1\n");
+        printf("输出虚拟机目录请输入2\n");
+        printf("退出请输入-1\n");
+        scanf("%d",&flag);
+        int vm1,vm2,vm3;
+        switch (flag){
+            case 1:
+                printf("请输入VM1的数目(随机请输入-1)\n");
+                scanf("%d",&vm1);
+                printf("请输入VM2的数目(随机请输入-1)\n");
+                scanf("%d",&vm2);
+                printf("请输入VM3的数目(随机请输入-1)\n");
+                scanf("%d",&vm3);
+                VMNum* V1 = initVM(vm1,vm2,vm3);
+                Server* S = initServer(V1);
+                addVm(S,V1,num);
+                break;
+            case 2:
+                printServer(S,*num);
+                break;
+            case -1:
+                return 0;
+            default:
+                printf("输入错误，请重新输入\n");
+                break;
+        }
+    }
+    
 
     return 0;
 }
