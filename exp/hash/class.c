@@ -160,7 +160,75 @@ void delete_student(class_hash *hash, char name[20]){
     hash->length--;
 }
 
+/**
+ * 读取文件
+*/
+void read_file(class_hash *hash){
+    FILE *fp = fopen("hash.txt", "r");//打开文件 只读
+    if(fp == NULL){
+        printf("文件打开失败\n");
+        return;
+    }
+    if(feof(fp)){
+        printf("文件为空\n");
+        return;
+    }
+
+    int num = -1;
+    char name[20];
+    int id;
+    int domitory;
+    int phone;
+    fscanf(fp, "%*[^\n]");//跳过第一行
+    while (fscanf(fp, "%d %s %d %d %d", &num, name, &id, &domitory, &phone) == 5){
+        add_class_addr(hash, id, domitory, phone, name);
+    }
+    fclose(fp);//关闭文件
+}
+
+/**
+ * 文件写入
+*/
+void write_file(class_hash *hash){
+    FILE *fp = fopen("hash.txt", "w");//打开文件 只写
+    if(fp == NULL){
+        printf("文件打开失败\n");
+        return;
+    }else{
+        fprintf(fp, "序号 姓名 学号 宿舍号 手机号\n");
+        for(int i = 0; i < hash->size; i++){
+            if(hash->addr[i].id != -1){
+                fprintf(fp, "%d %s %d %d %d\n", i, hash->addr[i].name, hash->addr[i].id, hash->addr[i].domitory, hash->addr[i].phone);
+            }
+        }
+    }
+    fclose(fp);//关闭文件
+}
+
 int main(){
 
+    class_hash *hash = init_class_hash(10);
+    // add_class_addr(hash, 216, 428, 123456, "linshuo");
+    // add_class_addr(hash, 217, 429, 12345, "qwe");
+    // add_class_addr(hash, 218, 430, 1234, "asd");
+    // add_class_addr(hash, 219, 431, 123, "zxc");
+    // add_class_addr(hash, 220, 432, 12, "qaz");
+    // add_class_addr(hash, 221, 433, 1, "wsx");
+
+    read_file(hash);//读取文件
+    // printf("%d\n", hash->length);
+
+    int flag = 0;
+    printf("管理员请输入1, 用户请输入0\n");
+    switch (flag)
+    {
+    case 0:
+        while (1){
+            
+        }
+        
+        break;
+    }
+    write_file(hash);//写入文件
     return 0;
 }
