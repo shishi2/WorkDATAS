@@ -103,7 +103,62 @@ void search_student(class_hash *hash, char name[20]){
     printf("查找次数：%d\n", count);
 }
 
+/**
+ * 修改学生信息
+ * 若是修改姓名，则需要先删除再添加
+ * 若是修改其他信息，0表示不修改 -1表示删除
+ * 
+ * @param hash 通讯录哈希表
+ * @param name 姓名
+ * @param id 学号
+ * @param domitory 宿舍号
+ * @param phone 手机号
+*/
+void modify_student(class_hash *hash, char name[20], int id, int domitory, int phone){
+    int index = hash_func(name, hash->size);
+    int count = 0;
+    while(count < hash->size && hash->addr[index].id != -1 && strcmp(hash->addr[index].name, name) != 0){
+        index = (index + 1) % hash->size;
+        count++;
+    }
+    if(count == hash->size){
+        printf("查无此人\n");
+        return;
+    }
 
+    if(id != 0){
+        hash->addr[index].id = id;
+    }
+    if(domitory != 0){
+        hash->addr[index].domitory = domitory;
+    }
+    if(phone != 0){
+        hash->addr[index].phone = phone;
+    }
+}
+
+/**
+ * 删除学生信息
+ * @param hash 通讯录哈希表
+ * @param name 姓名
+*/
+void delete_student(class_hash *hash, char name[20]){
+    int index = hash_func(name, hash->size);
+    int count = 0;
+    while(count < hash->size && hash->addr[index].id != -1 && strcmp(hash->addr[index].name, name) != 0){
+        index = (index + 1) % hash->size;
+        count++;
+    }
+    if(count == hash->size){
+        printf("查无此人\n");
+        return;
+    }
+    hash->addr[index].id = -1;
+    hash->addr[index].domitory = -1;
+    hash->addr[index].phone = -1;
+    hash->addr[index].name[0] = '\0';
+    hash->length--;
+}
 
 int main(){
 
