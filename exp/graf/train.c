@@ -17,7 +17,7 @@ typedef struct VexNode{
  * 邻接表头
 */
 typedef struct AdjaL{
-    char city[5];
+    char city[20];
     int VexNum;/*总节点*/
     int linenum;/*当前线路*/
     int line;/*总线路*/
@@ -27,7 +27,7 @@ typedef struct AdjaL{
 /**
  * 创建3dim邻接表头
 */
-AdjaL*** init3Adj(int line,int vexnum,char city[][5]){
+AdjaL*** init3Adj(int line,int vexnum,char city[][20]){
     AdjaL*** A = (AdjaL***)malloc(sizeof(AdjaL**)*line);
     for(int i = 0; i < line; i++){
         A[i] = (AdjaL**)malloc(sizeof(AdjaL*)*vexnum);
@@ -71,8 +71,8 @@ void creat3AdjL(AdjaL*** A,int* time){
 /**
  * 创建二维邻接表头，不含线路信息
 */
-AdjaL** init2AdjaL(int VexNum,char city[][5]){
-    AdjaL** B = (AdjaL**)malloc(sizeof(AdjaL*));
+AdjaL** init2AdjaL(int VexNum,char city[][20]){
+    AdjaL** B = (AdjaL**)malloc(sizeof(AdjaL*)*VexNum);
         for (int j = 0; j < VexNum; j++){
             B[j] = (AdjaL*)malloc(sizeof(AdjaL));
             strcpy(B[j]->city,city[j]);
@@ -127,7 +127,7 @@ void creat2AdjaL(AdjaL** B,int* time,int line){
  * 添加2dim站点联通关系
  * 若已联通则更新时间
 */
-void addAdjaL(AdjaL** B,char start[5],char end[5],int time){
+void addAdjaL(AdjaL** B,char start[20],char end[20],int time){
     int VexNum = B[0]->VexNum;
     int start_index = -1;
     int end_index = -1;
@@ -200,15 +200,18 @@ bool BFS2(AdjaL** B, int start_index, int end_index, int* path, int* path_length
         if( queue[front] >= 0 && B[queue[front]]->vex){
             VexNode* Temp = B[queue[front]]->vex;
             while (Temp){
+                if(Temp->index == NULL ){
+                    break;
+                }
                 if(visited[Temp->index] == true){
                     Temp = Temp->next;
-                    continue;
                 }else{
                     queue[rear] = Temp->index;rear++;
                     visited[Temp->index] = true;
                     prev[Temp->index] = queue[front];
                     Temp = Temp->next;
                 }
+                
             }            
         }
         front++; 
@@ -234,7 +237,7 @@ bool BFS2(AdjaL** B, int start_index, int end_index, int* path, int* path_length
  * 找到城市名称对应的下标
  * @return -1 未找到 
 */
-int findIndex(AdjaL** B,char cityName[5]){
+int findIndex(AdjaL** B,char cityName[20]){
     int VexNum = B[0]->VexNum;
     int index = -1;
     for(int i = 0; i < VexNum; i++){
@@ -252,7 +255,7 @@ int findIndex(AdjaL** B,char cityName[5]){
  * 即每个可达站点之间的权值认为是1
  * 输出途经的站点
 */
-void findShortestPath(AdjaL** B, char start[5], char end[5]){
+void findShortestPath(AdjaL** B, char start[20], char end[20]){
     int VexNum = B[0]->VexNum;
     int start_index = findIndex(B,start);
     int end_index = findIndex(B,end);
@@ -279,7 +282,7 @@ void findShortestPath(AdjaL** B, char start[5], char end[5]){
 /**
  * 计算两地之间花费的最短时间
 */
-void lessTime(AdjaL** B,char start[5],char end[5]){
+void lessTime(AdjaL** B,char start[20],char end[20]){
     int VexNum = B[0]->VexNum;
     int start_index = findIndex(B,start);
     int end_index = findIndex(B,end);
@@ -332,7 +335,6 @@ bool BFS3(AdjaL*** A, int start, int end,int* flag) {
                 }
             }
         }
-        
     }
     return false;
 }
@@ -341,7 +343,7 @@ bool BFS3(AdjaL*** A, int start, int end,int* flag) {
  * 以换线次数为标准
  * 查询换线次数
 */
-void lessChangeline(AdjaL*** A,char start[5],char end[5]){
+void lessChangeline(AdjaL*** A,char start[20],char end[20]){
     int line = A[0][0]->line;
     int VexNum = A[0][0]->VexNum;
 
@@ -369,42 +371,81 @@ void lessChangeline(AdjaL*** A,char start[5],char end[5]){
 void print3AdjaL(AdjaL*** A){
     int length = A[0][0]->VexNum;
     for(int i = 0; i < length; i++){
-        printf("%s\n",A[0][i]->city);
+        printf("%s  ",A[0][i]->city);
+        if(i%5 == 4){
+            printf("\n");
+        }
     }    
 }
 
 /**
- * 输出2dim的所有占点
+ * 输出2dim的所有站点
 */
 void print2AdjaL(AdjaL** B){
     int length = B[0]->VexNum;
     for (int i = 0; i < length; i++)
     {
-        printf("%s\n",B[i]->city);
+        printf("%s  ",B[i]->city);
+        if(i%5 == 4){
+            printf("\n");
+        }
     }
 }
 
 
 
 int main(){
-    char city[30][5]={"fir","sec","thi","four"};
-    int time[2][4][4] = 
-    {
-        {{0,MAX,3,MAX},{MAX,0,2,MAX},{3,2,0,MAX},{MAX,MAX,MAX,0}},
-        {{0,MAX,MAX,MAX},{MAX,0,3,MAX},{MAX,3,0,2},{MAX,MAX,2,0}}
-    };
+    char city[30][20]={
+        "香港","福田","深圳","虎门","庆盛","赣州","信丰","龙南","定南","和平"
+    ,"都匀","三都","榕江","从江","三江","苗栗","新竹","桃园","板桥","台北"
+    ,"瑞丽","芒市","龙陵","保山","永平","饶平","诏安","云霄","漳浦","漳州"};
+    int time[5][30][30] = {0};
+    for (int i = 0; i < 5; i++){
+        for(int j = 0; j < 10; j++){
+            for(int k = 0; k < 30; k++){
+                if(j == k){
+                    time[i][j][k] = 0;
+                    continue;
+                }
+                time[i][j][k] = MAX;
+            }
+        }
+    }
+    for(int i = 0; i < 5; i++){
+        for(int j = 0; j < 3; j++){
+            switch (i){
+            case 0:
+                time[0][i*5 + j][i*5 + j + 1] = rand()%10;
+                break;
+            case 1:
+                time[1][i*5 + j][i*5 + j] = rand()%20;
+                break;
+            case 2:
+                time[2][i*5 + j][i*5 + j] = rand()%30;
+                break;
+            case 3:
+                time[3][i*5 + j][i*5 + j] = rand()%40;
+                break;
+            case 4:
+                time[4][i*5 + j][i*5 + j] = rand()%50;
+                break;
+            }
+        }
+    }
 
-    AdjaL*** A = init3Adj(2,4,city);
+    AdjaL*** A = init3Adj(5,30,city);
     creat3AdjL(A,(int*)time);
     print3AdjaL(A);
 
-    AdjaL** B = init2AdjaL(4,city);
-    creat2AdjaL(B,(int*)time,2);
+    AdjaL** B = init2AdjaL(30,city);
+    creat2AdjaL(B,(int*)time,5);
     print2AdjaL(B);
 
-    findShortestPath(B,"fir","sec");
-    lessTime(B,"fir","sec");
-    lessChangeline(A,"fir","four");
+    findShortestPath(B,"香港","虎门");
+    lessTime(B,"香港","虎门");
+    lessChangeline(A,"香港","虎门");
+    addAdjaL(B,"香港","虎门",10);
+    findShortestPath(B,"香港","虎门");
 
     return 0;
 }
