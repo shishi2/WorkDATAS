@@ -200,9 +200,9 @@ bool BFS2(AdjaL** B, int start_index, int end_index, int* path, int* path_length
         if( queue[front] >= 0 && B[queue[front]]->vex){
             VexNode* Temp = B[queue[front]]->vex;
             while (Temp){
-                if(Temp->index == NULL ){
-                    break;
-                }
+                // if(Temp->index == NULL ){
+                //     break;
+                // }
                 if(visited[Temp->index] == true){
                     Temp = Temp->next;
                 }else{
@@ -418,16 +418,16 @@ int main(){
                 time[0][i*5 + j][i*5 + j + 1] = rand()%10;
                 break;
             case 1:
-                time[1][i*5 + j][i*5 + j] = rand()%20;
+                time[1][i*5 + j][i*5 + j + 1] = rand()%20;
                 break;
             case 2:
-                time[2][i*5 + j][i*5 + j] = rand()%30;
+                time[2][i*5 + j][i*5 + j + 1] = rand()%30;
                 break;
             case 3:
-                time[3][i*5 + j][i*5 + j] = rand()%40;
+                time[3][i*5 + j][i*5 + j + 1] = rand()%40;
                 break;
             case 4:
-                time[4][i*5 + j][i*5 + j] = rand()%50;
+                time[4][i*5 + j][i*5 + j + 1] = rand()%50;
                 break;
             }
         }
@@ -435,11 +435,11 @@ int main(){
 
     AdjaL*** A = init3Adj(5,30,city);
     creat3AdjL(A,(int*)time);
-    print3AdjaL(A);
 
     AdjaL** B = init2AdjaL(30,city);
     creat2AdjaL(B,(int*)time,5);
-    print2AdjaL(B);
+    
+    print3AdjaL(A);
 
     findShortestPath(B,"香港","虎门");
     lessTime(B,"香港","虎门");
