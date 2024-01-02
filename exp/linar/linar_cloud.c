@@ -16,8 +16,7 @@ typedef struct Server{
 }Server;
 
 /*虚拟机数目*/
-typedef struct VMNum
-{
+typedef struct VMNum{
     int vm1;/*vm1数目*/
     int vm2;/*vm2数目*/
     int vm3;/*vm3数目*/
@@ -172,12 +171,14 @@ int main(){
     while (1){
         int flag = 0;
         printf("添加虚拟机请输入1\n");
-        printf("输出虚拟机目录请输入2\n");
+        printf("在服务器上添加虚拟机请输入2\n")
+        printf("输出虚拟机目录请输入3\n");
         printf("退出请输入-1\n");
         scanf("%d",&flag);
         int vm1,vm2,vm3;
         switch (flag){
             case 1:
+                printf("创建虚拟机请求\n");
                 printf("请输入VM1的数目(随机请输入-1)\n");
                 scanf("%d",&vm1);
                 printf("请输入VM2的数目(随机请输入-1)\n");
@@ -189,6 +190,12 @@ int main(){
                 addVm(S,V1,num);
                 break;
             case 2:
+                printf("在服务器上添加虚拟机\n");
+                Server* S = initServer(V1);
+                addVm(S,V1,num);
+                break;
+            case 3:
+                printf("输出虚拟机目录\n");
                 printServer(S,*num);
                 break;
             case -1:
