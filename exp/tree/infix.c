@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct Bitree
-{
+typedef struct Bitree{
     char sign;
     int num;
     struct Bitree* left;/*作为栈时，作为next*/
@@ -77,7 +76,7 @@ Bitree* Synthtree(Bitree* S_num,Bitree* S_exp){
     signa2->right = num1;
     signa2->left = num2;
     Bitree* t = initTree();/*signa2的左右子树已满*/
-    t->right = signa2;
+    t->right = signa2;  /*故为其添加以！标志的父节点*/
     t->sign = '!';
     return t;
 }
@@ -86,7 +85,7 @@ Bitree* Synthtree(Bitree* S_num,Bitree* S_exp){
  * 构建表达式树
 */
 Bitree* experBiTree(){
-    printf("输入一个中缀表达式(其中+-*/四个符号分别对应加法,减法,乘法,除法,最后以#结尾): \n");
+    printf("\n输入一个中缀表达式(其中+-*/四个符号分别对应加法,减法,乘法,除法,最后以#结尾): \n");
     int flag = 0;/*记录数字的次数*/
     int num = 0;/*辅助记录数字*/
     Bitree* S_num = initTree();/*存储数字的栈*/
@@ -229,6 +228,9 @@ void InfixRecurion(Bitree* B){
     }
 }
 
+/**
+ * 计算表达式树的值 
+*/
 int calculate(Bitree* B){
     if(B->left == NULL && B->right == NULL){
         return B->num;
@@ -259,15 +261,44 @@ int calculate(Bitree* B){
 
 int main(){
     Bitree* B = experBiTree();
-    printf("\n");
-    InorderRecurion(B);
-    printf("\n");
-    PostRecurion(B);
-    printf("\n");
-    InfixRecurion(B);
-    printf("\n");
-    printf("%d",calculate(B));
-    printf("\n");
+    while (1){
+        int flag = 0;
+        printf("\n\n中序遍历请输入1\n");
+        printf("先序遍历请输入2\n");
+        printf("后序遍历请输入3\n");
+        printf("输出逆波兰式请输入4\n");
+        printf("输出中缀表达式请输入5\n");
+        printf("计算表达式请输入6\n");
+        printf("退出请输入-1\n");
+
+        scanf("%d",&flag);
+        switch(flag){
+            case 1:
+                InorderRecurion(B);
+                break;
+            case 2:
+                PreRecurion(B);
+                break;
+            case 3:
+                PostRecurion(B);
+                break;
+            case 4:
+                PostRecurion(B);
+                break;
+            case 5:
+                InfixRecurion(B);
+                break;
+            case 6:
+                printf("表达式的值为: %d\n",calculate(B));
+                break;
+            case -1:
+                exit(0);
+                break;
+            default:
+                printf("输入错误\n");
+                break;
+        }
+    }
     
     return 0;
 }
