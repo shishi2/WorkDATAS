@@ -200,9 +200,9 @@ bool BFS2(AdjaL** B, int start_index, int end_index, int* path, int* path_length
         if( queue[front] >= 0 && B[queue[front]]->vex){
             VexNode* Temp = B[queue[front]]->vex;
             while (Temp){
-                // if(Temp->index == NULL ){
-                //     break;
-                // }
+                if(Temp->index == NULL ){
+                    break;
+                }
                 if(visited[Temp->index] == true){
                     Temp = Temp->next;
                 }else{
@@ -446,6 +446,43 @@ int main(){
     lessChangeline(A,"香港","虎门");
     addAdjaL(B,"香港","虎门",10);
     findShortestPath(B,"香港","虎门");
+
+    while (1){
+        int flag = 0;
+        printf("以途经的站数为依据查询最短路径请输入1\n");
+        printf("以最短时间为依据查询最短路径请输入2\n");
+        printf("以最少换线次数为依据查询最短路径请输入3\n");
+        printf("退出请输入0\n");
+        scanf("%d",&flag);
+        switch (flag){
+        case 1:
+            printf("请输入起点和终点\n");
+            char start[20],end[20];
+            scanf("%s",start);
+            scanf("%s",end);
+            findShortestPath(B,start,end);
+            break;
+        case 2:
+            printf("请输入起点和终点\n");
+            scanf("%s",start);
+            scanf("%s",end);
+            lessTime(B,start,end);
+            break;
+        case 3:
+            printf("请输入起点和终点\n");
+            scanf("%s",start);
+            scanf("%s",end);
+            lessChangeline(A,start,end);
+            break;
+        case 0:
+            return 0;
+        default:
+            printf("输入错误，请重新输入\n");
+            break;
+        }
+    }
+    
+    
 
     return 0;
 }

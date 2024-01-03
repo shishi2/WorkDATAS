@@ -170,8 +170,8 @@ int main(){
 
     while (1){
         int flag = 0;
-        printf("添加虚拟机请输入1\n");
-        printf("在服务器上添加虚拟机请输入2\n")
+        printf("创建虚拟机请求请输入1\n");
+        printf("在服务器上添加虚拟机请输入2\n");
         printf("输出虚拟机目录请输入3\n");
         printf("退出请输入-1\n");
         scanf("%d",&flag);
@@ -191,11 +191,11 @@ int main(){
                 break;
             case 2:
                 printf("在服务器上添加虚拟机\n");
-                Server* S = initServer(V1);
+                S = initServer(V1);
                 addVm(S,V1,num);
                 break;
             case 3:
-                printf("输出虚拟机目录\n");
+                printf("输出服务器目录\n");
                 printServer(S,*num);
                 break;
             case -1:
