@@ -80,6 +80,34 @@ void add_class_addr(class_hash *hash, int id, int domitory, int phone, char name
 }
 
 /**
+ * 查找学生信息
+ * 在表中的下标
+ * @param hash 通讯录哈希表
+ * @param name 姓名
+*/
+int findIndex(class_hash *hash, char name[20]){
+    int index = hash_func(name, hash->size);
+    int count = 0;
+    while(count < hash->size){
+        if(hash->addr[index].id != -1){/*内容不为空*/
+            if(strcmp(hash->addr[index].name, name) != 0){/*匹配姓名*/
+                index = (index + 1) % hash->size;
+                count++;
+            }else{
+                break;
+            }
+        }{
+            index = (index + 1) % hash->size;
+            count++;
+        }
+    }
+    if(count == hash->size){
+        return -1;
+    }
+    return index;
+}
+
+/**
  * 查询学生信息
  * @param hash 通讯录哈希表
  * @param name 姓名
@@ -87,12 +115,21 @@ void add_class_addr(class_hash *hash, int id, int domitory, int phone, char name
 void search_student(class_hash *hash, char name[20]){
     int index = hash_func(name, hash->size);
     int count = 0;
-    while(count < hash->size && hash->addr[index].id != -1 && strcmp(hash->addr[index].name, name) != 0){
-        index = (index + 1) % hash->size;
-        count++;
+    while(count < hash->size){
+        if(hash->addr[index].id != -1){/*内容不为空*/
+            if(strcmp(hash->addr[index].name, name) != 0){/*匹配姓名*/
+                index = (index + 1) % hash->size;
+                count++;
+            }else{
+                break;
+            }
+        }else{
+            index = (index + 1) % hash->size;
+            count++;
+        }
     }
     if(count == hash->size){
-        printf("查无此人\n");
+        printf("查无此人\n\n");
         return;
     }
     printf("姓名：%s  ", hash->addr[index].name);
@@ -115,13 +152,8 @@ void search_student(class_hash *hash, char name[20]){
  * @param phone 手机号
 */
 void modify_student(class_hash *hash, char name[20], int id, int domitory, int phone){
-    int index = hash_func(name, hash->size);
-    int count = 0;
-    while(count < hash->size && hash->addr[index].id != -1 && strcmp(hash->addr[index].name, name) != 0){
-        index = (index + 1) % hash->size;
-        count++;
-    }
-    if(count == hash->size){
+    int index = findIndex(hash, name);
+    if(index == -1){
         printf("查无此人\n");
         return;
     }
@@ -143,13 +175,8 @@ void modify_student(class_hash *hash, char name[20], int id, int domitory, int p
  * @param name 姓名
 */
 void delete_student(class_hash *hash, char name[20]){
-    int index = hash_func(name, hash->size);
-    int count = 0;
-    while(count < hash->size && hash->addr[index].id != -1 && strcmp(hash->addr[index].name, name) != 0){
-        index = (index + 1) % hash->size;
-        count++;
-    }
-    if(count == hash->size){
+    int index = findIndex(hash, name);
+    if(index == -1){
         printf("查无此人\n");
         return;
     }
@@ -230,7 +257,6 @@ void write_file(class_hash *hash){
 int main(){
 
     class_hash *hash = init_class_hash(10);
-    // add_class_addr(hash, 216, 428, 123456, "linshuo");
     // add_class_addr(hash, 217, 429, 12345, "qwe");
     // add_class_addr(hash, 218, 430, 1234, "asd");
     // add_class_addr(hash, 219, 431, 123, "zxc");
@@ -239,65 +265,73 @@ int main(){
 
     read_file(hash);//读取文件
     // printf("%d\n", hash->length);
-
+    int change = 0;
     int flag = 0;
     printf("管理员请输入1, 用户请输入0\n");
     scanf("%d", &flag);
     switch (flag){
-    case 0://普通用户
-        while(1){
-            printf("普通用户界面\n");
-            printf("信息查询请输入1\n其他操作请输入0\n退出请输入-1\n");
-            int flag1 = 0;
-            scanf("%d", &flag1);
-            if(flag1 == 1){
-                printf("请输入姓名\n");
-                char name[20];
-                scanf("%s", name);
-                search_student(hash, name);
-            }else if(flag1 == -1){
-                break;
-            }else{
-                printf("暂无权限\n\n");
+        case 0://普通用户
+            while(1){
+                printf("普通用户界面\n");
+                printf("信息查询请输入1\n其他操作请输入0\n退出请输入-1\n");
+                int flag1 = 0;
+                scanf("%d", &flag1);
+                if(flag1 == 1){
+                    printf("请输入姓名\n");
+                    char name[20];
+                    scanf("%s", name);
+                    search_student(hash, name);
+                }else if(flag1 == -1){
+                    break;
+                }else{
+                    printf("暂无权限\n\n");
+                }
             }
-        }
-        break;
-    case 1://管理员
-        while(1){
-            printf("管理员界面\n");
-            printf("添加学生信息请输入1\n修改学生信息请输入2\n删除学生信息请输入3\n查看整个通讯录请输入4\n退出请输入-1\n");
-            int flag2 = 0;
-            scanf("%d", &flag2);
-            if(flag2 == 1){
-                printf("请输入学生的姓名 学号 宿舍号 电话号码\n");
-                int id;
-                int domitory;
-                int phone;
-                char name[20];
-                scanf("%s %d %d %d", name, &id, &domitory, &phone);
-                add_class_addr(hash, id, domitory, phone, name);
-            }else if(flag2 == 2){
-                printf("请输入欲修改学生的姓名 学号 宿舍号 电话号码\n");
-                printf("不修改的信息请输入0\n删除该项信息请输入-1\n");
-                char name[20];
-                int id;
-                int domitory;
-                int phone;
-                scanf("%s %d %d %d", name, &id, &domitory, &phone);
-                modify_student(hash, name, id, domitory, phone);
-            }else if(flag2 == 3){
-                printf("请输入欲删除学生的姓名\n");
-                char name[20];
-                scanf("%s", name);
-                delete_student(hash, name);
-            }else if(flag2 == 4){
-                printf("以下是通讯录中的所有信息\n");
-                print_hash(hash);
-            }else if(flag2 == -1){
-                break;
-            }
-        }
+            break;
+        case 1://管理员
+            while(1){
+                printf("管理员界面\n");
+                printf("添加学生信息请输入1\n修改学生信息请输入2\n删除学生信息请输入3\n查看整个通讯录请输入4\n退出请输入-1\n");
+                int flag2 = 0;
+                scanf("%d", &flag2);
+                if(flag2 == 1){
+                    printf("请输入学生的姓名 学号 宿舍号 电话号码\n");
+                    int id;
+                    int domitory;
+                    int phone;
+                    char name[20];
+                    scanf("%s %d %d %d", name, &id, &domitory, &phone);
+                    add_class_addr(hash, id, domitory, phone, name);
+                    change = 1;
+                }else if(flag2 == 2){
+                    printf("请输入欲修改学生的姓名 学号 宿舍号 电话号码\n");
+                    printf("不修改的信息请输入0\n删除该项信息请输入-1\n");
+                    char name[20];
+                    int id;
+                    int domitory;
+                    int phone;
+                    scanf("%s %d %d %d", name, &id, &domitory, &phone);
+                    modify_student(hash, name, id, domitory, phone);
+                    change = 1;
+                }else if(flag2 == 3){
+                    printf("请输入欲删除学生的姓名\n");
+                    char name[20];
+                    scanf("%s", name);
+                    delete_student(hash, name);
+                    change = 1;
+                }else if(flag2 == 4){
+                    printf("以下是通讯录中的所有信息\n");
+                    print_hash(hash);
+                }else if(flag2 == -1){
+                    break;
+                }
+            }   
+        default:
+            break;
     }
-    write_file(hash);//写入文件
+    if(change == 1){
+        write_file(hash);//写入文件
+    }
+    
     return 0;
 }
