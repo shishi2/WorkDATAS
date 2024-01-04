@@ -274,7 +274,7 @@ int main(){
             while(1){
                 printf("普通用户界面\n");
                 printf("信息查询请输入1\n其他操作请输入0\n退出请输入-1\n");
-                int flag1 = 0;
+                int flag1 = -1;
                 scanf("%d", &flag1);
                 if(flag1 == 1){
                     printf("请输入姓名\n");
@@ -292,7 +292,7 @@ int main(){
             while(1){
                 printf("管理员界面\n");
                 printf("添加学生信息请输入1\n修改学生信息请输入2\n删除学生信息请输入3\n查看整个通讯录请输入4\n退出请输入-1\n");
-                int flag2 = 0;
+                int flag2 = -1;
                 scanf("%d", &flag2);
                 if(flag2 == 1){
                     printf("请输入学生的姓名 学号 宿舍号 电话号码\n");
