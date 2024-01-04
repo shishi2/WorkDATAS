@@ -96,7 +96,14 @@ Bitree* experBiTree(){
         if(sign == '#'){/*判断表达式是否终止*/
             break;
         }
-
+        if((sign < '0' || sign >'9')){/*判断是否为无效字符*/
+            if(sign != '+' && sign != '-' && sign != '*' && sign != '/' && sign != '(' && sign != ')'){
+                printf("输入无效字符\n");
+                printf("程序退出\n");
+                exit(1);
+            }
+        }
+            
         if(sign <= '9' && sign >= '0'){/*接收到数字*/
             flag++;
             if(flag == 1){/*第一个数字*/
@@ -263,7 +270,7 @@ int main(){
     Bitree* B = experBiTree();
     while (1){
         int flag = 0;
-        printf("\n\n中序遍历请输入1\n");
+        printf("\n中序遍历请输入1\n");
         printf("先序遍历请输入2\n");
         printf("后序遍历请输入3\n");
         printf("输出逆波兰式请输入4\n");
