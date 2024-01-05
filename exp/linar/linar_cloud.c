@@ -152,7 +152,6 @@ void addVm(Server* S,VMNum* V,int* num){
     }
 }
 
-
 /*
 *输出服务器及分配的虚拟机目录
 */

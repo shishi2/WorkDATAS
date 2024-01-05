@@ -269,7 +269,7 @@ void findShortestPath(AdjaL** B, char start[20], char end[20]){
     int path[VexNum], path_length = 0;
     bool found = BFS2(B, start_index, end_index, path, &path_length);
 
-    if (found) {
+    if (found && path_length > 2) {
         printf("最短路径为: ");
         for (int i = path_length - 1; i >= 0; i--) {
             printf("%s ", B[path[i]]->city);
@@ -453,6 +453,7 @@ int main(){
         printf("以途经的站数为依据查询最短路径请输入1\n");
         printf("以最短时间为依据查询最短路径的时间请输入2\n");
         printf("查询最少换线次数请输入3\n");
+        printf("添加站点之间的联通关系请输入4\n");
         printf("退出请输入0\n");
         scanf("%d",&flag);
         switch (flag){
@@ -475,6 +476,15 @@ int main(){
             scanf("%s",end);
             lessChangeline(A,start,end);
             break;
+        case 4:
+            printf("请输入起点和终点\n");
+            scanf("%s",start);
+            scanf("%s",end);
+            printf("请输入两地之间的时间\n");
+            int time;
+            scanf("%d",&time);
+            addAdjaL(B,start,end,time);
+            break;
         case 0:
             return 0;
         default:
@@ -483,7 +493,5 @@ int main(){
         }
     }
     
-    
-
     return 0;
 }
